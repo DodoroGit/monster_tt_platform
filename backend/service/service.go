@@ -675,14 +675,6 @@ func (s *trialBookingSvc) Create(req model.CreateTrialBookingReq) (*model.TrialB
 	if req.Password != pwd {
 		return nil, errors.New("試教密碼錯誤")
 	}
-	// 同一姓名+手機只能申請一次試教（rejected 的除外）
-	applied, err := s.trialRepo.GuestAlreadyApplied(req.GuestName, req.GuestPhone)
-	if err != nil {
-		return nil, err
-	}
-	if applied {
-		return nil, errors.New("相同的姓名與手機號碼只能申請試教一次，如有疑問請聯繫小怪獸老闆")
-	}
 	avail, err := s.availRepo.FindByID(req.AvailabilityID)
 	if err != nil {
 		return nil, errors.New("availability not found")
