@@ -186,6 +186,7 @@ type BookingRepository interface {
 	FindByCoach(coachID uuid.UUID) ([]model.Booking, error)
 	FindByID(id uuid.UUID) (*model.Booking, error)
 	UpdateStatus(id uuid.UUID, status model.BookingStatus) error
+	UpdateTimes(id uuid.UUID, start, end time.Time) error
 	FindAll() ([]model.Booking, error)
 	DeleteByID(id uuid.UUID) error
 	OverlapExists(coachID uuid.UUID, start, end time.Time) (bool, error)
@@ -247,6 +248,11 @@ func (r *bookingRepo) FindByID(id uuid.UUID) (*model.Booking, error) {
 
 func (r *bookingRepo) UpdateStatus(id uuid.UUID, status model.BookingStatus) error {
 	return r.db.Model(&model.Booking{}).Where("id = ?", id).Update("status", status).Error
+}
+
+func (r *bookingRepo) UpdateTimes(id uuid.UUID, start, end time.Time) error {
+	return r.db.Model(&model.Booking{}).Where("id = ?", id).
+		Updates(map[string]interface{}{"booking_start": start, "booking_end": end}).Error
 }
 
 // ── Product ───────────────────────────────────────────────────────────────────

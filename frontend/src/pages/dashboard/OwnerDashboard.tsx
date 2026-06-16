@@ -278,6 +278,8 @@ export default function OwnerDashboard() {
 
   // ── 預約總覽 ──
   const { data: allBookingsRes, refetch: refetchAllBookings } = useQuery({ queryKey: ['all-bookings'], queryFn: bookingApi.listAll })
+  const [rescheduleTarget, setRescheduleTarget] = useState<Booking | null>(null)
+  const [rescheduleForm] = Form.useForm()
 
   const deleteBookingMutation = useMutation({
     mutationFn: bookingApi.deleteBooking,
@@ -295,6 +297,18 @@ export default function OwnerDashboard() {
     mutationFn: bookingApi.rejectCancel,
     onSuccess: () => { message.success('已拒絕取消申請，預約維持'); refetchAllBookings() },
     onError: (e: unknown) => message.error(e instanceof Error ? e.message : '操作失敗'),
+  })
+
+  const rescheduleMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { booking_start: string; booking_end: string } }) =>
+      bookingApi.reschedule(id, data),
+    onSuccess: () => {
+      message.success('預約時段已修改')
+      setRescheduleTarget(null)
+      rescheduleForm.resetFields()
+      refetchAllBookings()
+    },
+    onError: (e: unknown) => message.error(e instanceof Error ? e.message : '修改失敗'),
   })
 
   const approveTrialCancelMutation = useMutation({
@@ -428,6 +442,25 @@ export default function OwnerDashboard() {
       ),
     },
     { title: '申請時間', key: 'created', render: (_: unknown, r: Booking) => dayjs(r.created_at).format('MM/DD HH:mm') },
+    {
+      title: '修改時段', key: 'reschedule',
+      render: (_: unknown, r: Booking) => (
+        <Button
+          size="small"
+          icon={<EditOutlined />}
+          onClick={() => {
+            setRescheduleTarget(r)
+            rescheduleForm.setFieldsValue({
+              date: dayjs(r.booking_start),
+              startTime: dayjs(r.booking_start),
+              endTime: dayjs(r.booking_end),
+            })
+          }}
+        >
+          修改
+        </Button>
+      ),
+    },
     {
       title: '刪除', key: 'delete',
       render: (_: unknown, r: Booking) => (
@@ -954,6 +987,45 @@ export default function OwnerDashboard() {
               <Select.Option value="owner">店長</Select.Option>
               <Select.Option value="customer">顧客</Select.Option>
             </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 修改預約時段 */}
+      <Modal
+        title={`修改預約時段 — ${rescheduleTarget?.customer?.name ?? ''}`}
+        open={!!rescheduleTarget}
+        onCancel={() => { setRescheduleTarget(null); rescheduleForm.resetFields() }}
+        onOk={() => rescheduleForm.submit()}
+        confirmLoading={rescheduleMutation.isPending}
+        okText="確認修改"
+      >
+        <Form
+          form={rescheduleForm}
+          layout="vertical"
+          onFinish={(v) => {
+            if (!rescheduleTarget) return
+            const date = v.date.format('YYYY-MM-DD')
+            const start = dayjs(`${date} ${v.startTime.format('HH:mm')}`)
+            const end = dayjs(`${date} ${v.endTime.format('HH:mm')}`)
+            if (!end.isAfter(start)) {
+              message.error('結束時間必須晚於開始時間')
+              return
+            }
+            rescheduleMutation.mutate({
+              id: rescheduleTarget.id,
+              data: { booking_start: start.toISOString(), booking_end: end.toISOString() },
+            })
+          }}
+        >
+          <Form.Item label="日期" name="date" rules={[{ required: true, message: '請選擇日期' }]}>
+            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+          </Form.Item>
+          <Form.Item label="開始時間" name="startTime" rules={[{ required: true, message: '請選擇開始時間' }]}>
+            <TimePicker style={{ width: '100%' }} format="HH:mm" minuteStep={30} />
+          </Form.Item>
+          <Form.Item label="結束時間" name="endTime" rules={[{ required: true, message: '請選擇結束時間' }]}>
+            <TimePicker style={{ width: '100%' }} format="HH:mm" minuteStep={30} />
           </Form.Item>
         </Form>
       </Modal>

@@ -210,6 +210,11 @@ type CreateBookingReq struct {
 	Note           string     `json:"note"`
 }
 
+type RescheduleBookingReq struct {
+	BookingStart time.Time `json:"booking_start" binding:"required"`
+	BookingEnd   time.Time `json:"booking_end" binding:"required"`
+}
+
 type CreateProductReq struct {
 	Name        string  `json:"name" binding:"required"`
 	Description string  `json:"description"`

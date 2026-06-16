@@ -46,4 +46,7 @@ export const bookingApi = {
 
   deleteBooking: (id: string) =>
     client.delete<ApiResponse<{ message: string }>>(`/bookings/${id}`).then((r) => r.data),
+
+  reschedule: (id: string, data: { booking_start: string; booking_end: string }) =>
+    client.patch<ApiResponse<Booking>>(`/bookings/${id}/reschedule`, data).then((r) => r.data),
 }

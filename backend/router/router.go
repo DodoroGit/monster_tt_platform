@@ -82,6 +82,7 @@ func Setup(
 		bookings.PATCH("/:id/reject", middleware.RequireRole("coach"), bookingH.Reject)
 		bookings.PATCH("/:id/approve-cancel", middleware.RequireRole("owner"), bookingH.ApproveCancellation)
 		bookings.PATCH("/:id/reject-cancel", middleware.RequireRole("owner"), bookingH.RejectCancellation)
+		bookings.PATCH("/:id/reschedule", middleware.RequireRole("owner"), bookingH.Reschedule)
 	}
 
 	// Products (public read + image serve, owner write)

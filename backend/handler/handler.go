@@ -496,6 +496,25 @@ func (h *BookingHandler) Reject(c *gin.Context) {
 	ok(c, gin.H{"message": "rejected"})
 }
 
+func (h *BookingHandler) Reschedule(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		badRequest(c, "invalid id")
+		return
+	}
+	var req model.RescheduleBookingReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	b, err := h.svc.Reschedule(id, req)
+	if err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	ok(c, b)
+}
+
 // ── Product ───────────────────────────────────────────────────────────────────
 
 type ProductHandler struct{ svc service.ProductService }

@@ -292,6 +292,7 @@ type BookingService interface {
 	RejectCancellation(bookingID uuid.UUID) error
 	Approve(coachID uuid.UUID, bookingID uuid.UUID) error
 	Reject(coachID uuid.UUID, bookingID uuid.UUID) error
+	Reschedule(bookingID uuid.UUID, req model.RescheduleBookingReq) (*model.Booking, error)
 }
 
 type bookingSvc struct {
@@ -438,6 +439,19 @@ func (s *bookingSvc) Reject(coachID uuid.UUID, bookingID uuid.UUID) error {
 	}
 	return s.db.Model(&model.Booking{}).Where("id = ?", bookingID).
 		Update("status", model.BookingCancelled).Error
+}
+
+func (s *bookingSvc) Reschedule(bookingID uuid.UUID, req model.RescheduleBookingReq) (*model.Booking, error) {
+	if !req.BookingEnd.After(req.BookingStart) {
+		return nil, errors.New("結束時間必須晚於開始時間")
+	}
+	if _, err := s.bookingRepo.FindByID(bookingID); err != nil {
+		return nil, errors.New("booking not found")
+	}
+	if err := s.bookingRepo.UpdateTimes(bookingID, req.BookingStart, req.BookingEnd); err != nil {
+		return nil, err
+	}
+	return s.bookingRepo.FindByID(bookingID)
 }
 
 // ── Product ───────────────────────────────────────────────────────────────────
