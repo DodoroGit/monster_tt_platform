@@ -1,0 +1,205 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --primary: #059669;
+  --primary-light: #10B981;
+  --primary-bg: #ECFDF5;
+  --dark: #0F172A;
+  --dark-2: #1E293B;
+  --gray-50: #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gold: #D97706;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.07);
+  --shadow-xl: 0 20px 48px rgba(0,0,0,0.16), 0 8px 16px rgba(0,0,0,0.10);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--gray-100) !important;
+  font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page container ── */
+.page-body {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+/* ── Card hover lift ── */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-radius: 14px !important;
+}
+.hover-lift:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: var(--shadow-xl) !important;
+}
+
+/* ── Section heading ── */
+.section-heading {
+  position: relative;
+  display: inline-block;
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  color: var(--dark) !important;
+  margin-bottom: 8px !important;
+  letter-spacing: -0.5px;
+}
+.section-heading::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 44px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  border-radius: 2px;
+}
+
+/* ── Hero ── */
+.hero-wrapper {
+  background: linear-gradient(140deg, #070D1B 0%, #0D2137 50%, #071525 100%);
+  padding: 100px 32px 88px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  right: -60px;
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, rgba(5,150,105,0.20) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: 5%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* ── Stat bar ── */
+.stat-bar {
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+}
+.stat-item {
+  padding: 28px 20px;
+  text-align: center;
+  border-right: 1px solid var(--gray-200);
+}
+.stat-item:last-child { border-right: none; }
+.stat-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--primary);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.stat-label {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ── Product image hover ── */
+.product-img-wrap {
+  overflow: hidden;
+}
+.product-img-wrap img,
+.product-img-wrap .img-placeholder {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.hover-lift:hover .product-img-wrap img,
+.hover-lift:hover .product-img-wrap .img-placeholder {
+  transform: scale(1.04);
+}
+
+/* ── Slot items ── */
+.slot-item {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 18px 24px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.slot-item:hover {
+  box-shadow: var(--shadow-md);
+}
+.slot-item.slot-available {
+  border-left: 4px solid var(--primary);
+}
+.slot-item.slot-booked {
+  border-left: 4px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+/* ── Pill tag ── */
+.ant-tag {
+  border-radius: 100px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 2px 12px !important;
+  line-height: 22px !important;
+  border: none !important;
+}
+
+/* ── Nav dark overrides ── */
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected,
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected a {
+  color: #10B981 !important;
+  background: transparent !important;
+}
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover,
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover a {
+  color: #ffffff !important;
+  background: rgba(255,255,255,0.07) !important;
+}
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item a {
+  color: rgba(255,255,255,0.72);
+}
+
+/* ── Auth pages (center card) ── */
+.auth-wrapper {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-wrapper { padding: 68px 20px 60px; }
+  .page-body { padding: 28px 16px; }
+  .stat-item { padding: 20px 12px; }
+  .stat-number { font-size: 1.7rem; }
+}
