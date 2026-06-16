@@ -1,21 +1,28 @@
+import { useState } from 'react'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Layout, Menu, Button, Space, Badge, Dropdown } from 'antd'
+import { Layout, Menu, Button, Space, Badge, Dropdown, Drawer, Grid } from 'antd'
 import {
   ShoppingCartOutlined,
   UserOutlined,
   LogoutOutlined,
   DashboardOutlined,
+  MenuOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '@/store/auth'
 import { useCartStore } from '@/store/cart'
 
 const { Header, Content, Footer } = Layout
+const { useBreakpoint } = Grid
 
 export default function MainLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const cartCount = useCartStore((items) => items.length)
+  const screens = useBreakpoint()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const isMobile = !screens.md
 
   const navItems = [
     { key: '/', label: <Link to="/">首頁</Link> },
@@ -23,6 +30,11 @@ export default function MainLayout() {
     { key: '/shop', label: <Link to="/shop">球具商城</Link> },
     { key: '/contact', label: <Link to="/contact">聯絡我們</Link> },
   ]
+
+  const activeKey =
+    location.pathname === '/'
+      ? '/'
+      : navItems.find((n) => n.key !== '/' && location.pathname.startsWith(n.key))?.key ?? '/'
 
   const userMenuItems = user
     ? [
@@ -43,10 +55,10 @@ export default function MainLayout() {
       ]
     : []
 
-  const activeKey =
-    location.pathname === '/'
-      ? '/'
-      : navItems.find((n) => n.key !== '/' && location.pathname.startsWith(n.key))?.key ?? '/'
+  const handleNavClick = (path: string) => {
+    navigate(path)
+    setDrawerOpen(false)
+  }
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -58,7 +70,7 @@ export default function MainLayout() {
           background: 'rgba(15,23,42,0.96)',
           backdropFilter: 'blur(12px)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
-          padding: '0 32px',
+          padding: isMobile ? '0 16px' : '0 32px',
           height: 68,
           display: 'flex',
           alignItems: 'center',
@@ -95,7 +107,7 @@ export default function MainLayout() {
             style={{
               color: 'white',
               fontWeight: 800,
-              fontSize: 18,
+              fontSize: isMobile ? 16 : 18,
               letterSpacing: '-0.3px',
               lineHeight: 1,
             }}
@@ -105,20 +117,22 @@ export default function MainLayout() {
           </span>
         </Link>
 
-        {/* Nav */}
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          selectedKeys={[activeKey]}
-          items={navItems}
-          style={{
-            flex: 1,
-            marginLeft: 40,
-            background: 'transparent',
-            border: 'none',
-            fontSize: 15,
-          }}
-        />
+        {/* Desktop Nav */}
+        {!isMobile && (
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            selectedKeys={[activeKey]}
+            items={navItems}
+            style={{
+              flex: 1,
+              marginLeft: 40,
+              background: 'transparent',
+              border: 'none',
+              fontSize: 15,
+            }}
+          />
+        )}
 
         {/* Actions */}
         <Space size={8}>
@@ -153,36 +167,113 @@ export default function MainLayout() {
                   background: 'rgba(255,255,255,0.07)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   fontWeight: 500,
+                  maxWidth: isMobile ? 120 : 'none',
+                  overflow: 'hidden',
                 }}
               >
                 <UserOutlined />
-                {user.name}
+                {!isMobile && user.name}
               </Button>
             </Dropdown>
           ) : (
             <>
+              {!isMobile && (
+                <Button
+                  onClick={() => navigate('/login')}
+                  type="text"
+                  style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500, height: 40 }}
+                >
+                  登入
+                </Button>
+              )}
+              {!isMobile && (
+                <Button
+                  onClick={() => navigate('/register')}
+                  type="primary"
+                  style={{ height: 40, fontWeight: 600, borderRadius: 8 }}
+                >
+                  註冊
+                </Button>
+              )}
+            </>
+          )}
+
+          {/* Mobile hamburger */}
+          {isMobile && (
+            <Button
+              icon={<MenuOutlined style={{ fontSize: 18 }} />}
+              type="text"
+              onClick={() => setDrawerOpen(true)}
+              style={{
+                color: 'rgba(255,255,255,0.8)',
+                width: 40,
+                height: 40,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          )}
+        </Space>
+      </Header>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        title={
+          <span style={{ fontWeight: 800, fontSize: 16 }}>
+            小怪獸<span style={{ color: '#10B981', marginLeft: 4 }}>桌球</span>
+          </span>
+        }
+        placement="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        width={260}
+        styles={{ body: { padding: 0 } }}
+      >
+        <Menu
+          mode="inline"
+          selectedKeys={[activeKey]}
+          style={{ border: 'none', fontSize: 15 }}
+          items={[
+            { key: '/', label: '首頁', onClick: () => handleNavClick('/') },
+            { key: '/booking', label: '預約教練', onClick: () => handleNavClick('/booking') },
+            { key: '/shop', label: '球具商城', onClick: () => handleNavClick('/shop') },
+            { key: '/contact', label: '聯絡我們', onClick: () => handleNavClick('/contact') },
+          ]}
+        />
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0' }}>
+          {user ? (
+            <Space direction="vertical" style={{ width: '100%' }} size={8}>
               <Button
-                onClick={() => navigate('/login')}
-                type="text"
-                style={{
-                  color: 'rgba(255,255,255,0.8)',
-                  fontWeight: 500,
-                  height: 40,
-                }}
+                block
+                icon={<DashboardOutlined />}
+                onClick={() => { navigate('/dashboard'); setDrawerOpen(false) }}
+              >
+                個人後台
+              </Button>
+              <Button block danger onClick={() => { logout(); setDrawerOpen(false) }}>
+                登出
+              </Button>
+            </Space>
+          ) : (
+            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+              <Button
+                block
+                onClick={() => { navigate('/login'); setDrawerOpen(false) }}
               >
                 登入
               </Button>
               <Button
-                onClick={() => navigate('/register')}
+                block
                 type="primary"
-                style={{ height: 40, fontWeight: 600, borderRadius: 8 }}
+                onClick={() => { navigate('/register'); setDrawerOpen(false) }}
               >
-                免費註冊
+                註冊
               </Button>
-            </>
+            </Space>
           )}
-        </Space>
-      </Header>
+        </div>
+      </Drawer>
 
       <Content style={{ background: '#F1F5F9' }}>
         <Outlet />
@@ -192,18 +283,11 @@ export default function MainLayout() {
         style={{
           background: '#0F172A',
           borderTop: '1px solid rgba(255,255,255,0.06)',
-          padding: '48px 32px 32px',
+          padding: isMobile ? '32px 16px 24px' : '48px 32px 32px',
         }}
       >
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 24,
-            }}
-          >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
             <div
               style={{
                 width: 32,
@@ -220,14 +304,7 @@ export default function MainLayout() {
             </div>
             <span style={{ color: 'white', fontWeight: 800, fontSize: 16 }}>小怪獸桌球</span>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              gap: 24,
-              marginBottom: 32,
-              flexWrap: 'wrap',
-            }}
-          >
+          <div style={{ display: 'flex', gap: 24, marginBottom: 32, flexWrap: 'wrap' }}>
             {[
               { to: '/', label: '首頁' },
               { to: '/booking', label: '預約教練' },
@@ -244,9 +321,7 @@ export default function MainLayout() {
                   transition: 'color 0.2s',
                 }}
                 onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#10B981')}
-                onMouseLeave={(e) =>
-                  ((e.target as HTMLElement).style.color = 'rgba(255,255,255,0.5)')
-                }
+                onMouseLeave={(e) => ((e.target as HTMLElement).style.color = 'rgba(255,255,255,0.5)')}
               >
                 {item.label}
               </Link>
