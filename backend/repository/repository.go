@@ -18,6 +18,8 @@ type UserRepository interface {
 	FindByPhone(phone string) (*model.User, error)
 	List() ([]model.User, error)
 	UpdateRole(id uuid.UUID, role model.UserRole) error
+	UpdateProfile(id uuid.UUID, fields map[string]interface{}) error
+	UpdateByOwner(id uuid.UUID, fields map[string]interface{}) error
 }
 
 type userRepo struct{ db *gorm.DB }
@@ -49,6 +51,14 @@ func (r *userRepo) List() ([]model.User, error) {
 
 func (r *userRepo) UpdateRole(id uuid.UUID, role model.UserRole) error {
 	return r.db.Model(&model.User{}).Where("id = ?", id).Update("role", role).Error
+}
+
+func (r *userRepo) UpdateProfile(id uuid.UUID, fields map[string]interface{}) error {
+	return r.db.Model(&model.User{}).Where("id = ?", id).Updates(fields).Error
+}
+
+func (r *userRepo) UpdateByOwner(id uuid.UUID, fields map[string]interface{}) error {
+	return r.db.Model(&model.User{}).Where("id = ?", id).Updates(fields).Error
 }
 
 // ── Coach ─────────────────────────────────────────────────────────────────────

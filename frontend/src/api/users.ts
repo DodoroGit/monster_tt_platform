@@ -10,4 +10,10 @@ export const usersApi = {
 
   patchRole: (id: string, role: string) =>
     client.patch<ApiResponse<{ message: string }>>(`/users/${id}/role`, { role }).then((r) => r.data),
+
+  updateMyProfile: (data: { email?: string; line_id?: string; birthday?: string | null; gender?: string }) =>
+    client.put<ApiResponse<User>>('/users/me', data).then((r) => r.data),
+
+  updateByOwner: (id: string, data: { name?: string; phone?: string; email?: string; line_id?: string; birthday?: string | null; gender?: string }) =>
+    client.put<ApiResponse<User>>(`/users/${id}`, data).then((r) => r.data),
 }

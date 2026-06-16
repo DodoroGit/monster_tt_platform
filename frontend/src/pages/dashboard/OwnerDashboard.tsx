@@ -31,6 +31,9 @@ export default function OwnerDashboard() {
   const [editModal, setEditModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [userModal, setUserModal] = useState(false)
+  const [editUserModal, setEditUserModal] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [editUserForm] = Form.useForm()
   const [imageProductId, setImageProductId] = useState<string | null>(null)
   const [productForm] = Form.useForm()
   const [editForm] = Form.useForm()
@@ -86,6 +89,30 @@ export default function OwnerDashboard() {
     onSuccess: () => { message.success('角色已更新'); qc.invalidateQueries({ queryKey: ['users'] }) },
     onError: (e: unknown) => message.error(e instanceof Error ? e.message : '更新失敗'),
   })
+
+  const updateUserMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof usersApi.updateByOwner>[1] }) =>
+      usersApi.updateByOwner(id, data),
+    onSuccess: () => {
+      message.success('會員資料已更新')
+      qc.invalidateQueries({ queryKey: ['users'] })
+      setEditUserModal(false)
+    },
+    onError: (e: unknown) => message.error(e instanceof Error ? e.message : '更新失敗'),
+  })
+
+  const openEditUser = (u: User) => {
+    setEditingUser(u)
+    editUserForm.setFieldsValue({
+      name: u.name,
+      phone: u.phone,
+      email: u.email,
+      line_id: u.line_id,
+      birthday: u.birthday ? dayjs(u.birthday) : null,
+      gender: u.gender || undefined,
+    })
+    setEditUserModal(true)
+  }
 
   const uploadImageMutation = useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) => productsApi.uploadImage(id, file),
@@ -185,8 +212,17 @@ export default function OwnerDashboard() {
 
   const userCols = [
     { title: '姓名', dataIndex: 'name', key: 'name' },
-    { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: '電話', dataIndex: 'phone', key: 'phone' },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Line ID', dataIndex: 'line_id', key: 'line_id' },
+    {
+      title: '生日', key: 'birthday',
+      render: (_: unknown, r: User) => r.birthday ? dayjs(r.birthday).format('YYYY/MM/DD') : '-',
+    },
+    {
+      title: '性別', key: 'gender',
+      render: (_: unknown, r: User) => ({ male: '男', female: '女', other: '其他' }[r.gender] ?? '-'),
+    },
     {
       title: '角色', key: 'role',
       render: (_: unknown, r: User) => (
@@ -198,6 +234,12 @@ export default function OwnerDashboard() {
           onChange={(role) => patchRoleMutation.mutate({ id: r.id, role })}
           options={roleOptions}
         />
+      ),
+    },
+    {
+      title: '編輯', key: 'edit',
+      render: (_: unknown, r: User) => (
+        <Button size="small" icon={<EditOutlined />} onClick={() => openEditUser(r)}>編輯</Button>
       ),
     },
   ]
@@ -966,6 +1008,50 @@ export default function OwnerDashboard() {
           </Form.Item>
           <Form.Item label="庫存數量" name="stock" rules={[{ required: true }]}>
             <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 編輯會員資料 (店長) */}
+      <Modal
+        title={`編輯會員資料 — ${editingUser?.name ?? ''}`}
+        open={editUserModal}
+        onCancel={() => setEditUserModal(false)}
+        onOk={() => editUserForm.submit()}
+        confirmLoading={updateUserMutation.isPending}
+        okText="儲存"
+      >
+        <Form
+          form={editUserForm}
+          layout="vertical"
+          onFinish={(v) => {
+            if (!editingUser) return
+            updateUserMutation.mutate({
+              id: editingUser.id,
+              data: {
+                name: v.name,
+                phone: v.phone,
+                email: v.email || '',
+                line_id: v.line_id || '',
+                birthday: v.birthday ? v.birthday.toISOString() : null,
+                gender: v.gender || '',
+              },
+            })
+          }}
+        >
+          <Form.Item label="姓名" name="name" rules={[{ required: true, message: '請輸入姓名' }]}><Input /></Form.Item>
+          <Form.Item label="手機" name="phone" rules={[{ required: true, message: '請輸入手機' }]}><Input /></Form.Item>
+          <Form.Item label="Email" name="email"><Input /></Form.Item>
+          <Form.Item label="Line ID" name="line_id"><Input /></Form.Item>
+          <Form.Item label="生日" name="birthday">
+            <DatePicker style={{ width: '100%' }} format="YYYY/MM/DD" />
+          </Form.Item>
+          <Form.Item label="性別" name="gender">
+            <Select allowClear placeholder="請選擇">
+              <Select.Option value="male">男</Select.Option>
+              <Select.Option value="female">女</Select.Option>
+              <Select.Option value="other">其他</Select.Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>

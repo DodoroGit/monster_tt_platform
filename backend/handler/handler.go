@@ -113,6 +113,39 @@ func (h *UserHandler) Create(c *gin.Context) {
 	created(c, user)
 }
 
+func (h *UserHandler) UpdateMyProfile(c *gin.Context) {
+	var req model.UpdateMyProfileReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	user, err := h.svc.UpdateMyProfile(middleware.GetUserID(c), req)
+	if err != nil {
+		internal(c, err.Error())
+		return
+	}
+	ok(c, user)
+}
+
+func (h *UserHandler) UpdateByOwner(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		badRequest(c, "invalid id")
+		return
+	}
+	var req model.UpdateUserByOwnerReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	user, err := h.svc.UpdateByOwner(id, req)
+	if err != nil {
+		notFound(c, err.Error())
+		return
+	}
+	ok(c, user)
+}
+
 func (h *UserHandler) PatchRole(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {

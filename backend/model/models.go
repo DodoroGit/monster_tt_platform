@@ -24,12 +24,16 @@ const (
 )
 
 type User struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	Name      string    `gorm:"not null" json:"name"`
-	Phone     string    `gorm:"uniqueIndex;not null" json:"phone"`
-	Role      UserRole  `gorm:"type:varchar(20);not null;default:'customer'" json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	Name      string     `gorm:"not null" json:"name"`
+	Phone     string     `gorm:"uniqueIndex;not null" json:"phone"`
+	Email     string     `gorm:"default:''" json:"email"`
+	LineID    string     `gorm:"column:line_id;default:''" json:"line_id"`
+	Birthday  *time.Time `gorm:"type:date" json:"birthday"`
+	Gender    string     `gorm:"type:varchar(10);default:''" json:"gender"`
+	Role      UserRole   `gorm:"type:varchar(20);not null;default:'customer'" json:"role"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type CoachProfile struct {
@@ -184,6 +188,22 @@ type CreateUserReq struct {
 	Name  string `json:"name" binding:"required"`
 	Phone string `json:"phone" binding:"required"`
 	Role  string `json:"role" binding:"required,oneof=owner coach customer"`
+}
+
+type UpdateMyProfileReq struct {
+	Email    string     `json:"email"`
+	LineID   string     `json:"line_id"`
+	Birthday *time.Time `json:"birthday"`
+	Gender   string     `json:"gender"`
+}
+
+type UpdateUserByOwnerReq struct {
+	Name     string     `json:"name"`
+	Phone    string     `json:"phone"`
+	Email    string     `json:"email"`
+	LineID   string     `json:"line_id"`
+	Birthday *time.Time `json:"birthday"`
+	Gender   string     `json:"gender"`
 }
 
 type PatchRoleReq struct {

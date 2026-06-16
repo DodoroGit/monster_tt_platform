@@ -111,12 +111,15 @@ func Setup(
 		orders.DELETE("/:id", middleware.RequireRole("owner"), orderH.Delete)
 	}
 
-	// Users (owner only)
+	// Users
+	v1.PUT("/users/me", middleware.JWT(jwtSecret), userH.UpdateMyProfile)
+
 	users := v1.Group("/users", middleware.JWT(jwtSecret), middleware.RequireRole("owner"))
 	{
 		users.GET("", userH.List)
 		users.POST("", userH.Create)
 		users.PATCH("/:id/role", userH.PatchRole)
+		users.PUT("/:id", userH.UpdateByOwner)
 	}
 
 	// Trial Bookings

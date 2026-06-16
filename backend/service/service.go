@@ -76,6 +76,8 @@ type UserService interface {
 	List() ([]model.User, error)
 	Create(req model.CreateUserReq) (*model.User, error)
 	PatchRole(id uuid.UUID, role string) error
+	UpdateMyProfile(id uuid.UUID, req model.UpdateMyProfileReq) (*model.User, error)
+	UpdateByOwner(id uuid.UUID, req model.UpdateUserByOwnerReq) (*model.User, error)
 }
 
 type userSvc struct{ userRepo repository.UserRepository }
@@ -101,6 +103,51 @@ func (s *userSvc) PatchRole(id uuid.UUID, role string) error {
 		return errors.New("user not found")
 	}
 	return s.userRepo.UpdateRole(id, model.UserRole(role))
+}
+
+func (s *userSvc) UpdateMyProfile(id uuid.UUID, req model.UpdateMyProfileReq) (*model.User, error) {
+	user, err := s.userRepo.FindByID(id)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+	fields := map[string]interface{}{}
+	if user.Email == "" && req.Email != "" {
+		fields["email"] = req.Email
+	}
+	if user.LineID == "" && req.LineID != "" {
+		fields["line_id"] = req.LineID
+	}
+	if user.Birthday == nil && req.Birthday != nil {
+		fields["birthday"] = req.Birthday
+	}
+	if user.Gender == "" && req.Gender != "" {
+		fields["gender"] = req.Gender
+	}
+	if len(fields) == 0 {
+		return user, nil
+	}
+	if err := s.userRepo.UpdateProfile(id, fields); err != nil {
+		return nil, err
+	}
+	return s.userRepo.FindByID(id)
+}
+
+func (s *userSvc) UpdateByOwner(id uuid.UUID, req model.UpdateUserByOwnerReq) (*model.User, error) {
+	if _, err := s.userRepo.FindByID(id); err != nil {
+		return nil, errors.New("user not found")
+	}
+	fields := map[string]interface{}{
+		"name":     req.Name,
+		"phone":    req.Phone,
+		"email":    req.Email,
+		"line_id":  req.LineID,
+		"birthday": req.Birthday,
+		"gender":   req.Gender,
+	}
+	if err := s.userRepo.UpdateByOwner(id, fields); err != nil {
+		return nil, err
+	}
+	return s.userRepo.FindByID(id)
 }
 
 // ── Coach ─────────────────────────────────────────────────────────────────────

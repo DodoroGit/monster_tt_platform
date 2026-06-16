@@ -4,6 +4,10 @@ export interface User {
   id: string
   name: string
   phone: string
+  email: string
+  line_id: string
+  birthday: string | null
+  gender: string
   role: UserRole
   created_at: string
   updated_at: string
