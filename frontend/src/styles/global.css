@@ -68,7 +68,9 @@ body {
 
 /* ── Hero ── */
 .hero-wrapper {
-  background: linear-gradient(140deg, #070D1B 0%, #0D2137 50%, #071525 100%);
+  background:
+    linear-gradient(140deg, rgba(7,13,27,0.72) 0%, rgba(13,33,55,0.65) 50%, rgba(7,21,37,0.72) 100%),
+    url('/background.jpg') center/cover no-repeat;
   padding: 100px 32px 88px;
   position: relative;
   overflow: hidden;

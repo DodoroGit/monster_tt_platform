@@ -89,20 +89,11 @@ export default function MainLayout() {
             flexShrink: 0,
           }}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              background: 'linear-gradient(135deg, #059669, #10B981)',
-              borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 18,
-            }}
-          >
-            🏓
-          </div>
+          <img
+            src="/logo.jpg"
+            alt="小怪獸桌球"
+            style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover' }}
+          />
           <span
             style={{
               color: 'white',
@@ -288,20 +279,11 @@ export default function MainLayout() {
       >
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                background: 'linear-gradient(135deg, #059669, #10B981)',
-                borderRadius: 8,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 16,
-              }}
-            >
-              🏓
-            </div>
+            <img
+              src="/logo.jpg"
+              alt="小怪獸桌球"
+              style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }}
+            />
             <span style={{ color: 'white', fontWeight: 800, fontSize: 16 }}>小怪獸桌球</span>
           </div>
           <div style={{ display: 'flex', gap: 24, marginBottom: 32, flexWrap: 'wrap' }}>

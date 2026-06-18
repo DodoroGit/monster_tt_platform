@@ -1,10 +1,13 @@
-import { Row, Col, Card, Typography, Tag, Button, Space, Tooltip } from 'antd'
+import { Row, Col, Card, Typography, Tag, Button, Space, Modal } from 'antd'
 import {
   TrophyOutlined,
   TeamOutlined,
   ArrowRightOutlined,
   StarFilled,
+  FireOutlined,
+  PictureOutlined,
 } from '@ant-design/icons'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { coachesApi } from '@/api/coaches'
 import { awardsApi } from '@/api/awards'
@@ -49,8 +52,36 @@ const courses = [
 
 
 
+const promos = [
+  {
+    key: 'course1',
+    img: '/course1.jpg',
+    title: '6・7 月限定優惠',
+    subtitle: '小怪獸桌球優惠活動',
+    tags: ['全年齡', '限時優惠'],
+    tagColor: '#D97706',
+    tagBg: '#FEF3C7',
+    accent: '#D97706',
+    accentBg: 'linear-gradient(135deg, #FEF3C7, #FDE68A55)',
+    border: '#FDE68A',
+  },
+  {
+    key: 'course2',
+    img: '/course2.jpg',
+    title: '7・8 月夏令營',
+    subtitle: '小怪獸桌球夏令營',
+    tags: ['國小1~6年級', '三人成班'],
+    tagColor: '#0369A1',
+    tagBg: '#E0F2FE',
+    accent: '#0369A1',
+    accentBg: 'linear-gradient(135deg, #E0F2FE, #BAE6FD55)',
+    border: '#BAE6FD',
+  },
+]
+
 export default function HomePage() {
   const navigate = useNavigate()
+  const [modalImg, setModalImg] = useState<string | null>(null)
   const { data: coachesRes } = useQuery({
     queryKey: ['coaches'],
     queryFn: coachesApi.list,
@@ -210,6 +241,138 @@ export default function HomePage() {
             </Col>
           ))}
         </Row>
+
+        {/* ── Promos ── */}
+        <div className="section-header" style={{ marginBottom: 40 }}>
+          <Title className="section-heading">
+            <FireOutlined style={{ marginRight: 10, color: '#D97706' }} />
+            最新優惠活動
+          </Title>
+          <Paragraph style={{ color: '#64748B', marginTop: 20, fontSize: 15 }}>
+            限時方案・把握機會立即報名
+          </Paragraph>
+        </div>
+
+        <Row gutter={[20, 20]} style={{ marginBottom: 64 }}>
+          {promos.map((p) => (
+            <Col xs={24} sm={12} key={p.key}>
+              <Card
+                className="hover-lift"
+                style={{
+                  border: `1px solid ${p.border}`,
+                  background: p.accentBg,
+                  height: '100%',
+                }}
+                bodyStyle={{ padding: 28 }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 16 }}>
+                  {/* 預覽縮圖 */}
+                  <div
+                    style={{
+                      width: '100%',
+                      height: 180,
+                      borderRadius: 10,
+                      overflow: 'hidden',
+                      background: '#F1F5F9',
+                      cursor: 'pointer',
+                      position: 'relative',
+                    }}
+                    onClick={() => setModalImg(p.img)}
+                  >
+                    <img
+                      src={p.img}
+                      alt={p.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = 'none'
+                        const parent = e.currentTarget.parentElement
+                        if (parent) {
+                          parent.style.display = 'flex'
+                          parent.style.alignItems = 'center'
+                          parent.style.justifyContent = 'center'
+                          parent.innerHTML = `<span style="font-size:40px;opacity:0.3">🏓</span>`
+                        }
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.2s',
+                        borderRadius: 10,
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.25)'
+                        const icon = e.currentTarget.querySelector('span') as HTMLElement
+                        if (icon) icon.style.opacity = '1'
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0)'
+                        const icon = e.currentTarget.querySelector('span') as HTMLElement
+                        if (icon) icon.style.opacity = '0'
+                      }}
+                    >
+                      <span style={{ opacity: 0, transition: 'opacity 0.2s', fontSize: 32, color: 'white' }}>
+                        <PictureOutlined />
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 文字區 */}
+                  <div>
+                    <Space size={6} wrap style={{ marginBottom: 10 }}>
+                      {p.tags.map((t) => (
+                        <Tag key={t} style={{ background: p.tagBg, color: p.tagColor, border: 'none', fontWeight: 600 }}>
+                          {t}
+                        </Tag>
+                      ))}
+                    </Space>
+                    <Title level={5} style={{ marginBottom: 4, fontWeight: 700, color: '#0F172A' }}>
+                      {p.title}
+                    </Title>
+                    <Paragraph style={{ color: '#64748B', fontSize: 14, marginBottom: 0 }}>
+                      {p.subtitle}・詳細時間與價格見活動資訊
+                    </Paragraph>
+                  </div>
+
+                  <Button
+                    style={{
+                      marginTop: 'auto',
+                      borderColor: p.accent,
+                      color: p.accent,
+                      fontWeight: 600,
+                      borderRadius: 8,
+                    }}
+                    onClick={() => setModalImg(p.img)}
+                  >
+                    查看詳情
+                  </Button>
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+
+        <Modal
+          open={!!modalImg}
+          onCancel={() => setModalImg(null)}
+          footer={null}
+          centered
+          width="auto"
+          styles={{ body: { padding: 0, lineHeight: 0 }, content: { padding: 0, borderRadius: 12, overflow: 'hidden', display: 'inline-block' }, wrapper: { textAlign: 'center' } }}
+        >
+          {modalImg && (
+            <img
+              src={modalImg}
+              alt="活動詳情"
+              style={{ maxHeight: '90vh', maxWidth: '90vw', width: 'auto', display: 'block' }}
+            />
+          )}
+        </Modal>
 
         {/* ── Coaches ── */}
         <div className="section-header" style={{ marginBottom: 40 }}>
