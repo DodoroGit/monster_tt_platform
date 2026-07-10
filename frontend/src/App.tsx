@@ -15,6 +15,7 @@ import ShopPage from '@/pages/shop/index'
 import ProductDetailPage from '@/pages/shop/ProductDetail'
 import CartPage from '@/pages/shop/Cart'
 import DashboardPage from '@/pages/dashboard/index'
+import GuidePage from '@/pages/guide/index'
 
 const qc = new QueryClient()
 
@@ -90,6 +91,14 @@ export default function App() {
                   element={
                     <ProtectedRoute>
                       <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/guide"
+                  element={
+                    <ProtectedRoute roles={['owner']}>
+                      <GuidePage />
                     </ProtectedRoute>
                   }
                 />

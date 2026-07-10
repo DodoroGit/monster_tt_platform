@@ -29,6 +29,7 @@ export default function MainLayout() {
     { key: '/booking', label: <Link to="/booking">預約教練</Link> },
     { key: '/shop', label: <Link to="/shop">球具商城</Link> },
     { key: '/contact', label: <Link to="/contact">聯絡我們</Link> },
+    ...(user?.role === 'owner' ? [{ key: '/guide', label: <Link to="/guide">系統說明</Link> }] : []),
   ]
 
   const activeKey =
@@ -230,6 +231,9 @@ export default function MainLayout() {
             { key: '/booking', label: '預約教練', onClick: () => handleNavClick('/booking') },
             { key: '/shop', label: '球具商城', onClick: () => handleNavClick('/shop') },
             { key: '/contact', label: '聯絡我們', onClick: () => handleNavClick('/contact') },
+            ...(user?.role === 'owner'
+              ? [{ key: '/guide', label: '系統說明', onClick: () => handleNavClick('/guide') }]
+              : []),
           ]}
         />
         <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0' }}>
